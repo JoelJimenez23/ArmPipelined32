@@ -138,7 +138,6 @@ module datapath (
 	wire [3:0] WA4D;
 	wire [31:0] ExtImmD;
 	wire [31:0] ExtImmD_rot;
-	wire [7:0] ShiftInstrD;
 
 	///EXECUTE
 	wire [31:0] RD1E;
@@ -155,7 +154,7 @@ module datapath (
 	wire [3:0] 	WA4E;
 	wire [31:0] ExtImmE;
 	wire [31:0] ALUResultE;
-	wire [7:0] ShiftInstrE;
+	wire [11:0] ShiftInstrE;
 	wire [31:0] MulHalfTopE;
 	wire [31:0] SrcAEMulE;
 	wire [31:0] RD3Ehz;
@@ -163,7 +162,7 @@ module datapath (
 	wire [31:0] SrcAEDivE;
 	wire [3:0] MULAuxE;
 	wire [31:0] ALUResultEPost;
-
+	wire isImmE;
 	wire [2:0] MulInstrE;
 	wire DivInstrE;
 
@@ -398,12 +397,20 @@ module datapath (
 		.q(WA4E)
 	);
 
-	floprc #(8) ShiftInstrDReg(
+	floprc #(12) ShiftInstrDReg(
 		.clk(clk),
 		.reset(reset),
-		.clear(clear),
-		.d(InstrD[11:4]),
+		.clear(FlushE),
+		.d(InstrD[11:0]),
 		.q(ShiftInstrE)
+	);
+
+	floprc #(1)isImmEReg(
+		.clk(clk),
+		.reset(reset),
+		.clear(FlushE),
+		.d(InstrD[25]),
+		.q(isImmE)
 	);
 
 	rotate rot(
@@ -424,10 +431,12 @@ module datapath (
 
 	shifter shift(
 		.rs(RD3Ehz),
-		.shamt5(ShiftInstrE[7:3]),
-		.sh(ShiftInstrE[2:1]),
-		.op(ShiftInstrE[0]),
-		.op1(ShiftInstrE[3]),
+		.shamt5(ShiftInstrE[11:7]),
+		.sh(ShiftInstrE[6:5]),
+		.op(ShiftInstrE[4]),
+		.op1(ShiftInstrE[7]),
+		.rmi(ShiftInstrE[3:0]),
+		.isImm(isImmE),
 		.rm(WriteDataE),
 		.y(WriteDataEShifted)
 	);

@@ -43,6 +43,8 @@ module regfile (
 	wire [31:0] r1;
 	wire [31:0] r2;
 	wire [31:0] r3;
+	wire [31:0] r4;
+
 	always @(posedge clk) begin
 		if (we1)
 			rf[wa1] <= wd1;

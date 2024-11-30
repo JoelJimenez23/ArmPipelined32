@@ -61,11 +61,20 @@ module decode (
 	always @(*)
 		casex (Op)
 			2'b00: begin
-				if (Funct[5])
-					if(InstrD_7_4 == 4'b1001)
-						controls = 11'b00001010000; /// desactivar aluop
-					else 
-						controls = 11'b00001010010;
+				if (Funct[5])begin
+					if(Funct[4:1] == 4'b1101) begin
+						if(InstrD_7_4 == 4'b1001)
+							controls = 11'b00000010000; /// desactivar aluop
+						else 
+							controls = 11'b00000010010;						
+					end
+					else begin
+						if(InstrD_7_4 == 4'b1001)
+							controls = 11'b00001010000; /// desactivar aluop
+						else 
+							controls = 11'b00001010010;
+					end
+				end
 				else
 					if(InstrD_7_4 == 4'b1001)
 						controls = 11'b00000010000;/// desactivar aluop
